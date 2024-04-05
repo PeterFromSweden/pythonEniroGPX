@@ -74,13 +74,11 @@ def create_delta_gpx(file_path):
 
 
 if __name__ == '__main__':
-    #create_delta_gpx(r'C:\Users\Peter\Dropbox\Båt\GPS\Eniro-Nautical_20240405-113954.gpx')
-    #exit(0)
     event_handler = MyHandler()
     observer = Observer()
     observer.schedule(event_handler, path_to_watch, recursive=True)
     observer.start()
-
+    print(f'Monitoring {path_to_watch}')
     try:
         while True:
             pass

@@ -1,0 +1,2 @@
+gpxpy~=1.6.2
+watchdog~=4.0.0
