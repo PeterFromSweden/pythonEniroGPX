@@ -1,7 +1,5 @@
 import os
 import shutil
-from datetime import datetime
-
 import gpxpy.gpx
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -32,7 +30,7 @@ def create_delta_gpx(file_path):
     # Read last delta to find which was last file processed
     delta = True
     try:
-        gpx_file = open(os.path.join(path_to_watch, 'Eniro-Delta.gpx'), 'r')
+        gpx_file = open(os.path.join(path_to_watch, 'Eniro-Delta.gpx'), 'r', encoding='utf-8')
     except IOError as e:
         # No delta => no previous file
         delta = False
@@ -44,7 +42,7 @@ def create_delta_gpx(file_path):
         last_datetime_string = last_file_name[15:]
         last_file_path = os.path.join(path_to_watch, last_file_name)
         print(f'Last file: {last_file_name}')
-        gpx_file = open(last_file_path, 'r')
+        gpx_file = open(last_file_path, 'r', encoding='utf-8')
         last_gpx = gpxpy.parse(gpx_file)
     else:
         last_gpx = gpxpy.gpx.GPX()
@@ -53,7 +51,7 @@ def create_delta_gpx(file_path):
     delta_gpx.name = file_name  # To be used as last file processed next time
 
     # Read current file
-    gpx_file = open(file_path, 'r')
+    gpx_file = open(file_path, 'r', encoding='utf-8')
     gpx = gpxpy.parse(gpx_file)
 
     # List all routes from last file
@@ -69,7 +67,7 @@ def create_delta_gpx(file_path):
         shutil.copyfile(os.path.join(path_to_watch, 'Eniro-Delta.gpx'),
                         os.path.join(path_to_watch, f'Eniro-OldDelta_{last_datetime_string}'))
 
-    gpx_file = open(os.path.join(path_to_watch, 'Eniro-Delta.gpx'), 'w')
+    gpx_file = open(os.path.join(path_to_watch, 'Eniro-Delta.gpx'), 'w', encoding='utf-8')
     gpx_file.write(delta_gpx.to_xml())
 
 
