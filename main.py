@@ -1,5 +1,7 @@
 import os
 import shutil
+import sys
+
 import gpxpy.gpx
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
@@ -23,7 +25,7 @@ class MyHandler(FileSystemEventHandler):
 def create_delta_gpx(file_path):
     file_name = os.path.basename(file_path)
     print(f'New file: {file_name}')
-    if not file_name.startswith('Eniro-Nautical_'):
+    if not file_name.startswith('Eniro-Nautical_') and not file_name.startswith('Skippo_'):
         print(f'Skipped!')
         return
 
@@ -39,7 +41,8 @@ def create_delta_gpx(file_path):
         delta_gpx = gpxpy.parse(gpx_file)
         # Read last file
         last_file_name = delta_gpx.name
-        last_datetime_string = last_file_name[15:]
+        pos = last_file_name.index('_') + 1
+        last_datetime_string = last_file_name[pos:]
         last_file_path = os.path.join(path_to_watch, last_file_name)
         print(f'Last file: {last_file_name}')
         gpx_file = open(last_file_path, 'r', encoding='utf-8')
@@ -52,7 +55,11 @@ def create_delta_gpx(file_path):
 
     # Read current file
     gpx_file = open(file_path, 'r', encoding='utf-8')
-    gpx = gpxpy.parse(gpx_file)
+    try:
+        gpx = gpxpy.parse(gpx_file)
+    except gpxpy.gpx.GPXXMLSyntaxException as e:
+        print(e)
+        return
 
     # List all routes from last file
     old_route_names = list(map(lambda obj: obj.name, last_gpx.routes))
@@ -72,6 +79,10 @@ def create_delta_gpx(file_path):
 
 
 if __name__ == '__main__':
+    if len(sys.argv) == 2:
+        create_delta_gpx(sys.argv[1])
+        exit(0)
+
     event_handler = MyHandler()
     observer = Observer()
     observer.schedule(event_handler, path_to_watch, recursive=True)
